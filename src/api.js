@@ -1,11 +1,11 @@
 import axios from "axios";
 
-// Use Render backend in production, localhost in development
-const baseURL =
+// Backend: https://backend-inventory-s63r.onrender.com (set REACT_APP_API_URL in Vercel to override)
+const backendUrl =
   process.env.NODE_ENV === "production"
-    ? "https://backend-inventory-sfi9.onrender.com/api"
-    : "http://localhost:5000/api";
+    ? (process.env.REACT_APP_API_URL || "https://backend-inventory-s63r.onrender.com").replace(/\/$/, "")
+    : "http://localhost:5000";
 
 export default axios.create({
-  baseURL
+  baseURL: `${backendUrl}/api`
 });
