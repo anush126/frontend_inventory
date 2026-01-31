@@ -7,5 +7,5 @@ const backendUrl =
     : "http://localhost:5000";
 
 export default axios.create({
-  baseURL: `${backendUrl}/api`
+  baseURL: `${backendUrl}`
 });
