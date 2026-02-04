@@ -8,12 +8,14 @@ export default function Sales() {
   const [error, setError] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
+  const today = () => new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState({
     customerName: "",
     productName: "",
     category: "",
     quantity: "1",
-    price: ""
+    price: "",
+    date: today()
   });
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -21,7 +23,8 @@ export default function Sales() {
     productName: "",
     category: "",
     quantity: "1",
-    price: ""
+    price: "",
+    date: today()
   });
 
   const fetchSales = async () => {
@@ -53,15 +56,17 @@ export default function Sales() {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    const saleDate = (form.date && form.date.trim() !== "") ? form.date : today();
     try {
       await api.post("/sales", {
         customerName: form.customerName.trim(),
         productName: form.productName.trim(),
         category: form.category.trim(),
         quantity: Math.max(1, Number(form.quantity) || 1),
-        price: Number(form.price) || 0
+        price: Number(form.price) || 0,
+        date: saleDate
       });
-      setForm({ customerName: "", productName: "", category: "", quantity: "1", price: "" });
+      setForm({ customerName: "", productName: "", category: "", quantity: "1", price: "", date: today() });
       setShowCreate(false);
       await fetchSales();
     } catch (err) {
@@ -72,14 +77,22 @@ export default function Sales() {
     }
   };
 
+  const formatDateForInput = (dateVal) => {
+    if (!dateVal) return today();
+    const d = new Date(dateVal);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
+
   const startEdit = (sale) => {
     setEditingId(sale._id);
+    const saleDate = formatDateForInput(sale.date);
     setEditForm({
       customerName: sale.customerName || "",
       productName: sale.productName || "",
       category: sale.category || "",
       quantity: String(sale.quantity ?? "1"),
-      price: String(sale.price ?? "")
+      price: String(sale.price ?? ""),
+      date: saleDate
     });
   };
 
@@ -97,7 +110,8 @@ export default function Sales() {
         productName: editForm.productName.trim(),
         category: editForm.category.trim(),
         quantity: Math.max(1, Number(editForm.quantity) || 1),
-        price: Number(editForm.price) || 0
+        price: Number(editForm.price) || 0,
+        date: editForm.date || today()
       });
       setEditingId(null);
       await fetchSales();
@@ -174,6 +188,10 @@ export default function Sales() {
                 <label>Price</label>
                 <input name="price" value={form.price} onChange={onChange} type="number" min="0" step="0.01" placeholder="e.g. 200" />
               </div>
+              <div className="create-form-field">
+                <label>Date of Sale</label>
+                <input name="date" value={form.date} onChange={onChange} type="date" required />
+              </div>
             </div>
             <div className="create-form-actions">
               <button type="button" className="secondary-button" onClick={() => setShowCreate(false)} disabled={saving}>
@@ -204,6 +222,7 @@ export default function Sales() {
           <table className="data-table">
             <thead>
               <tr>
+                <th>Date</th>
                 <th>Customer Name</th>
                 <th>Product Name</th>
                 <th>Category</th>
@@ -215,6 +234,18 @@ export default function Sales() {
             <tbody>
               {sales.map(s => (
                 <tr key={s._id}>
+                  <td>
+                    {editingId === s._id ? (
+                      <input
+                        name="date"
+                        type="date"
+                        value={editForm.date}
+                        onChange={onEditChange}
+                      />
+                    ) : (
+                      s.date ? new Date(s.date).toLocaleDateString() : "—"
+                    )}
+                  </td>
                   <td>
                     {editingId === s._id ? (
                       <input

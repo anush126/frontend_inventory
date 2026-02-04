@@ -32,16 +32,35 @@ export default function Dashboard() {
         const lowStock = products.filter(p => (Number(p.stock) || 0) > 0 && (Number(p.stock) || 0) < 10).length;
         const outOfStock = products.filter(p => !p.stock || Number(p.stock) <= 0).length;
 
-        const totalSalesAmount = sales.reduce((sum, sale) => sum + (Number(sale.price) || 0), 0);
+        const now = new Date();
+        const thisYear = now.getFullYear();
+        const thisMonth = now.getMonth();
+        const todayDate = now.getDate();
 
-        // For now, treat all sales as this month's and today's
-        const dailySales = totalSalesAmount;
-        const monthlySales = totalSalesAmount;
-        const monthlyTransactions = sales.length;
+        // Sales in current month (by sale.date; no date = treat as today)
+        const thisMonthSales = sales.filter(s => {
+          const d = s.date ? new Date(s.date) : new Date();
+          return d.getFullYear() === thisYear && d.getMonth() === thisMonth;
+        });
+        const monthlySales = thisMonthSales.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
+        const monthlyTransactions = thisMonthSales.length;
+        const dailySales = thisMonthSales
+          .filter(s => {
+            const d = s.date ? new Date(s.date) : new Date();
+            return d.getDate() === todayDate;
+          })
+          .reduce((sum, s) => sum + (Number(s.price) || 0), 0);
 
-        // Simple trend: last up to 5 sales amounts
-        const lastSales = sales.slice(-5);
-        const salesTrendData = lastSales.map(s => Number(s.price) || 0);
+        // By day of month: { day 1..31, amount }
+        const amountByDay = Array.from({ length: 31 }, (_, i) => ({ day: i + 1, amount: 0 }));
+        thisMonthSales.forEach(s => {
+          const d = s.date ? new Date(s.date) : new Date();
+          const day = d.getDate();
+          if (day >= 1 && day <= 31) {
+            amountByDay[day - 1].amount += Number(s.price) || 0;
+          }
+        });
+        const salesTrendData = amountByDay;
 
         setStats({
           totalProducts,
@@ -63,9 +82,14 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const maxValue = stats.salesTrendData.length
-    ? Math.max(...stats.salesTrendData) * 1.25
-    : 40;
+  const yAxisMax = 20000; // Y-axis (amount) scale: 0 to 20000
+  const chartLeft = 45;
+  const chartBottom = 185;
+  const chartWidth = 440;
+  const chartHeight = 160;
+  const days = stats.salesTrendData;
+  const yAxisValues = [0, 5000, 10000, 15000, 20000];
+  const xAxisValues = [1, 5, 10, 15, 20, 25, 30];
 
   return (
     <div className="dashboard-container">
@@ -128,57 +152,62 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right Panel - 30-Day Sales Trend */}
+        {/* Right Panel - Sales Trend: X = amount, Y = days of month */}
         <div className="panel sales-trend-panel">
-          <h2 className="panel-title">30-Day Sales Trend</h2>
+          <h2 className="panel-title">Sales Trend (This Month)</h2>
           <div className="chart-container">
-            <svg className="line-chart" viewBox="0 0 500 200" preserveAspectRatio="none">
-              {/* Y-axis labels */}
-              <text x="10" y="20" className="axis-label">40</text>
-              <text x="10" y="60" className="axis-label">30</text>
-              <text x="10" y="100" className="axis-label">20</text>
-              <text x="10" y="140" className="axis-label">10</text>
-              <text x="10" y="180" className="axis-label">0</text>
-              
-              {/* Y-axis line */}
-              <line x1="40" y1="10" x2="40" y2="190" stroke="#ddd" strokeWidth="1" />
-              
-              {/* X-axis labels */}
-              <text x="100" y="195" className="axis-label">Item 1</text>
-              <text x="180" y="195" className="axis-label">Item 2</text>
-              <text x="260" y="195" className="axis-label">Item 3</text>
-              <text x="340" y="195" className="axis-label">Item 4</text>
-              <text x="420" y="195" className="axis-label">Item 5</text>
-              
-              {/* X-axis line */}
-              <line x1="40" y1="190" x2="480" y2="190" stroke="#ddd" strokeWidth="1" />
-              
-              {/* Line chart */}
-              <polyline
-                points={stats.salesTrendData.map((value, index) => {
-                  const x = 100 + (index * 80);
-                  const y = 190 - ((value / maxValue) * 180);
-                  return `${x},${y}`;
-                }).join(' ')}
-                fill="none"
-                stroke="#4FC3F7"
-                strokeWidth="2"
-              />
-              
-              {/* Data points */}
-              {stats.salesTrendData.map((value, index) => {
-                const x = 100 + (index * 80);
-                const y = 190 - ((value / maxValue) * 180);
+            <svg className="line-chart" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet">
+              {/* Y-axis: amount (₹) */}
+              {yAxisValues.map((val) => {
+                const y = chartBottom - (val / yAxisMax) * chartHeight;
                 return (
-                  <circle
-                    key={index}
-                    cx={x}
-                    cy={y}
-                    r="4"
-                    fill="#4FC3F7"
-                  />
+                  <text key={val} x="8" y={y + 4} className="axis-label">
+                    {val.toLocaleString()}
+                  </text>
                 );
               })}
+              <line x1={chartLeft} y1="10" x2={chartLeft} y2={chartBottom} stroke="#ddd" strokeWidth="1" />
+              {/* X-axis: day of month */}
+              <text x={chartLeft + chartWidth / 2 - 40} y="206" className="axis-label">
+                Day of Month
+              </text>
+              {xAxisValues.map((d) => {
+                const x = chartLeft + (d / 31) * chartWidth;
+                return (
+                  <text key={d} x={x - 4} y="198" className="axis-label">
+                    {d}
+                  </text>
+                );
+              })}
+              <line x1={chartLeft} y1={chartBottom} x2={chartLeft + chartWidth} y2={chartBottom} stroke="#ddd" strokeWidth="1" />
+              {/* Line graph: points (day, amount) connected by line */}
+              {(() => {
+                const points = days
+                  .filter((d) => d.amount > 0)
+                  .sort((a, b) => a.day - b.day)
+                  .map(({ day, amount }) => {
+                  const x = chartLeft + (day / 31) * chartWidth;
+                  const y = chartBottom - (amount / yAxisMax) * chartHeight;
+                    return { x, y, day, amount };
+                  });
+                if (points.length === 0) return null;
+                const linePoints = points.map((p) => `${p.x},${p.y}`).join(" ");
+                return (
+                  <>
+                    <polyline
+                      points={linePoints}
+                      fill="none"
+                      stroke="#4FC3F7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    {points.map((p) => (
+                      <circle key={p.day} cx={p.x} cy={p.y} r="4" fill="#4FC3F7" />
+                    ))}
+                  </>
+                );
+              })()}
             </svg>
           </div>
         </div>
