@@ -32,10 +32,17 @@ export default function Dashboard() {
         const lowStock = products.filter(p => (Number(p.stock) || 0) > 0 && (Number(p.stock) || 0) < 10).length;
         const outOfStock = products.filter(p => !p.stock || Number(p.stock) <= 0).length;
 
+        // Helper function to normalize date to start of day (local timezone)
+        const normalizeDate = (date) => {
+          const d = new Date(date);
+          d.setHours(0, 0, 0, 0);
+          return d;
+        };
+
         const now = new Date();
+        const today = normalizeDate(now);
         const thisYear = now.getFullYear();
         const thisMonth = now.getMonth();
-        const todayDate = now.getDate();
 
         // Sales in current month (by sale.date; no date = treat as today)
         const thisMonthSales = sales.filter(s => {
@@ -44,10 +51,13 @@ export default function Dashboard() {
         });
         const monthlySales = thisMonthSales.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
         const monthlyTransactions = thisMonthSales.length;
-        const dailySales = thisMonthSales
+        
+        // Calculate daily sales for today
+        const dailySales = sales
           .filter(s => {
-            const d = s.date ? new Date(s.date) : new Date();
-            return d.getDate() === todayDate;
+            if (!s.date) return false;
+            const saleDate = normalizeDate(s.date);
+            return saleDate.getTime() === today.getTime();
           })
           .reduce((sum, s) => sum + (Number(s.price) || 0), 0);
 
