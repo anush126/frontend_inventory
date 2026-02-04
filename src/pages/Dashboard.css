@@ -1,3 +1,27 @@
+.inventory-system-box {
+  display: inline-flex;      /* logo + text side by side */
+  align-items: center;       /* vertically align logo and text */
+  gap: 8px;                  /* space between logo and text */
+  padding: 12px 24px;
+  background-color: #fffdfd;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-logo {
+  height: 24px;
+  width: 24px;
+  object-fit: contain;
+  display: block;
+}
+
+.inventory-system-box span {
+  line-height: 1;            /* avoid extra vertical offset */
+}
+
 .dashboard-container {
   min-height: 100vh;
   background-color: #f3f2f2;
@@ -16,23 +40,12 @@
   flex: 1;
 }
 
-.inventory-system-box {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: #fffdfd;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-weight: 500;
-  color: #333;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
 .header-center {
   flex: 2;
   text-align: center;
 }
 
-.dashboard-title {
+.dashboard- {
   margin: 0;
   font-size: 32px;
   font-weight: 600;
@@ -88,7 +101,7 @@
   min-height: 300px;
 }
 
-.panel-title {
+.panel- {
   font-size: 20px;
   font-weight: 600;
   color: #333;

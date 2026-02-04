@@ -96,8 +96,10 @@ export default function Dashboard() {
       {/* Header Section */}
       <div className="dashboard-header">
         <div className="header-left">
-          <div className="inventory-system-box">Inventory System</div>
-        </div>
+          <div className="inventory-system-box">
+            <img src="/AT.png" alt="Anil Tradelinks logo" className="inventory-logo" />
+            <span>Anil Tradelinks</span>
+          </div>        </div>
         <div className="header-center">
           <h1 className="dashboard-title">Dashboard</h1>
         </div>
@@ -186,8 +188,8 @@ export default function Dashboard() {
                   .filter((d) => d.amount > 0)
                   .sort((a, b) => a.day - b.day)
                   .map(({ day, amount }) => {
-                  const x = chartLeft + (day / 31) * chartWidth;
-                  const y = chartBottom - (amount / yAxisMax) * chartHeight;
+                    const x = chartLeft + (day / 31) * chartWidth;
+                    const y = chartBottom - (amount / yAxisMax) * chartHeight;
                     return { x, y, day, amount };
                   });
                 if (points.length === 0) return null;
