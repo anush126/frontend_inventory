@@ -1,0 +1,154 @@
+/* Match app theme: light background, blue accent */
+.landing {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #e8eef4 0%, #f3f2f2 50%);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background: container / business shapes */
+.landing-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-bg-shape {
+  position: absolute;
+  opacity: 0.12;
+  color: #2196F3;
+}
+
+/* Box outlines (container style) */
+.landing-bg-box {
+  border: 2px solid currentColor;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.landing-bg-box-1 { width: 120px; height: 80px;  top: 12%;  left: 8%;  transform: rotate(-8deg); }
+.landing-bg-box-2 { width: 90px;  height: 90px;  top: 22%;  right: 12%; transform: rotate(6deg); }
+.landing-bg-box-3 { width: 100px; height: 70px;  bottom: 18%; left: 10%;  transform: rotate(5deg); }
+
+/* Crate style (dashed = container) */
+.landing-bg-crate {
+  border: 2px dashed currentColor;
+  border-radius: 2px;
+  background: transparent;
+  opacity: 0.1;
+}
+
+.landing-bg-crate-1 { width: 80px;  height: 60px;  bottom: 25%; right: 15%; transform: rotate(-12deg); }
+.landing-bg-crate-2 { width: 70px;  height: 50px;  top: 55%;  left: 18%;  transform: rotate(10deg); }
+
+/* Pallet strip */
+.landing-bg-pallet {
+  width: 100px;
+  height: 14px;
+  background: currentColor;
+  border-radius: 2px;
+  top: 8%;
+  right: 25%;
+  transform: rotate(-15deg);
+  opacity: 0.1;
+}
+
+/* Icons: package, archive, grid */
+.landing-bg-icon {
+  width: 48px;
+  height: 48px;
+  top: 70%;
+  right: 8%;
+}
+
+.landing-bg-icon-1 { top: 14%; left: 22%; width: 44px; height: 44px; transform: rotate(-5deg); }
+.landing-bg-icon-2 { top: 65%; right: 22%; width: 40px; height: 40px; transform: rotate(8deg); }
+.landing-bg-icon-3 { bottom: 12%; right: 10%; width: 36px; height: 36px; transform: rotate(-10deg); }
+
+.landing-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 44px 40px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(33, 150, 243, 0.06);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.landing-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2196F3, #42A5F5);
+  border-radius: 12px 12px 0 0;
+}
+
+.landing-brand {
+  margin-bottom: 32px;
+}
+
+.landing-logo {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  margin-bottom: 1.25rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #333;
+  text-decoration: underline;
+  text-decoration-color: #2196F3;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+
+.landing-tagline {
+  margin: 0;
+  padding-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+  border-top: 1px solid #eee;
+  display: inline-block;
+}
+
+.landing-cta {
+  display: inline-block;
+  padding: 14px 32px;
+  background-color: #2196F3;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.35);
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.landing-cta:hover {
+  background-color: #1976D2;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+  transform: translateY(-2px);
+}
+
+.landing-cta:active {
+  transform: translateY(0);
+}

@@ -4,6 +4,7 @@ import "./PageStyles.css";
 
 export default function Sales() {
   const [sales, setSales] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -41,9 +42,39 @@ export default function Sales() {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get("/products");
+      setProducts(res.data || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    }
+  };
+
   useEffect(() => {
     fetchSales();
+    fetchProducts();
   }, []);
+
+  const onProductSelect = (e) => {
+    const value = e.target.value;
+    if (!value) {
+      setForm(prev => ({ ...prev, productName: "", category: "" }));
+      return;
+    }
+    const [name, category] = value.split("\u241f"); // unit separator
+    setForm(prev => ({ ...prev, productName: name || "", category: category || "" }));
+  };
+
+  const onEditProductSelect = (e) => {
+    const value = e.target.value;
+    if (!value) {
+      setEditForm(prev => ({ ...prev, productName: "", category: "" }));
+      return;
+    }
+    const [name, category] = value.split("\u241f");
+    setEditForm(prev => ({ ...prev, productName: name || "", category: category || "" }));
+  };
 
   const totalSales = sales.reduce((sum, sale) => sum + (parseFloat(sale.price) || 0), 0);
 
@@ -173,12 +204,20 @@ export default function Sales() {
                 <input name="customerName" value={form.customerName} onChange={onChange} required placeholder="e.g. Rahul" />
               </div>
               <div className="create-form-field">
-                <label>Product Name</label>
-                <input name="productName" value={form.productName} onChange={onChange} required placeholder="e.g. Sugar" />
-              </div>
-              <div className="create-form-field">
-                <label>Category</label>
-                <input name="category" value={form.category} onChange={onChange} required placeholder="e.g. Grocery" />
+                <label>Product</label>
+                <select
+                  value={form.productName && form.category ? `${form.productName}\u241f${form.category}` : ""}
+                  onChange={onProductSelect}
+                  required
+                  className="create-form-select"
+                >
+                  <option value="">Select product...</option>
+                  {products.map((p) => (
+                    <option key={p._id} value={`${p.name}\u241f${p.category}`}>
+                      {p.name} ({p.category})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="create-form-field">
                 <label>Quantity</label>
@@ -259,11 +298,19 @@ export default function Sales() {
                   </td>
                   <td>
                     {editingId === s._id ? (
-                      <input
-                        name="productName"
-                        value={editForm.productName}
-                        onChange={onEditChange}
-                      />
+                      <select
+                        value={editForm.productName && editForm.category ? `${editForm.productName}\u241f${editForm.category}` : ""}
+                        onChange={onEditProductSelect}
+                        className="create-form-select"
+                        style={{ minWidth: "140px" }}
+                      >
+                        <option value="">Select product...</option>
+                        {products.map((p) => (
+                          <option key={p._id} value={`${p.name}\u241f${p.category}`}>
+                            {p.name} ({p.category})
+                          </option>
+                        ))}
+                      </select>
                     ) : (
                       s.productName
                     )}
@@ -274,6 +321,8 @@ export default function Sales() {
                         name="category"
                         value={editForm.category}
                         onChange={onEditChange}
+                        readOnly
+                        style={{ width: "100%", backgroundColor: "#f5f5f5", cursor: "not-allowed" }}
                       />
                     ) : (
                       s.category

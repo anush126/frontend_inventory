@@ -51,7 +51,7 @@ export default function Dashboard() {
         });
         const monthlySales = thisMonthSales.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
         const monthlyTransactions = thisMonthSales.length;
-        
+
         // Calculate daily sales for today
         const dailySales = sales
           .filter(s => {
@@ -181,7 +181,6 @@ export default function Dashboard() {
               <line x1={chartLeft} y1="10" x2={chartLeft} y2={chartBottom} stroke="#ddd" strokeWidth="1" />
               {/* X-axis: day of month */}
               <text x={chartLeft + chartWidth / 2 - 40} y="206" className="axis-label">
-                Day of Month
               </text>
               {xAxisValues.map((d) => {
                 const x = chartLeft + (d / 31) * chartWidth;

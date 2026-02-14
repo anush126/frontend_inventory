@@ -90,6 +90,23 @@
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
 }
 
+.create-form-field select.create-form-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  outline: none;
+  font-size: 14px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.create-form-field select.create-form-select:focus {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+
 .create-form-actions {
   display: flex;
   gap: 10px;

@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import "./PageStyles.css";
 
+const PRODUCT_VALUE_SEP = "\u241f"; // unit separator for name|category
+
 export default function Purchase() {
   const [purchases, setPurchases] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -38,9 +42,49 @@ export default function Purchase() {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get("/products");
+      setProducts(res.data || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    }
+  };
+
+  const fetchSuppliers = async () => {
+    try {
+      const res = await api.get("/suppliers");
+      setSuppliers(res.data || []);
+    } catch (err) {
+      console.error("Error fetching suppliers:", err);
+    }
+  };
+
   useEffect(() => {
     fetchPurchases();
+    fetchProducts();
+    fetchSuppliers();
   }, []);
+
+  const onProductSelect = (e) => {
+    const value = e.target.value;
+    if (!value) {
+      setForm(prev => ({ ...prev, name: "", category: "" }));
+      return;
+    }
+    const [name, category] = value.split(PRODUCT_VALUE_SEP);
+    setForm(prev => ({ ...prev, name: name || "", category: category || "" }));
+  };
+
+  const onEditProductSelect = (e) => {
+    const value = e.target.value;
+    if (!value) {
+      setEditForm(prev => ({ ...prev, name: "", category: "" }));
+      return;
+    }
+    const [name, category] = value.split(PRODUCT_VALUE_SEP);
+    setEditForm(prev => ({ ...prev, name: name || "", category: category || "" }));
+  };
 
   const totalPurchases = purchases.reduce((sum, purchase) => sum + (parseFloat(purchase.price) || 0), 0);
 
@@ -64,6 +108,7 @@ export default function Purchase() {
       setForm({ name: "", category: "", price: "", stock: "", supplier: "" });
       setShowCreate(false);
       await fetchPurchases();
+      await fetchProducts();
     } catch (err) {
       console.error("Error creating purchase:", err);
       setError(err?.response?.data?.error || "Failed to add purchase.");
@@ -101,6 +146,7 @@ export default function Purchase() {
       });
       setEditingId(null);
       await fetchPurchases();
+      await fetchProducts();
     } catch (err) {
       console.error("Error updating purchase:", err);
       setError(err?.response?.data?.error || "Failed to update purchase.");
@@ -155,16 +201,37 @@ export default function Purchase() {
           <form className="create-form" onSubmit={onCreate}>
             <div className="create-form-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
               <div className="create-form-field">
-                <label>Product Name</label>
-                <input name="name" value={form.name} onChange={onChange} required placeholder="e.g. Sugar" />
-              </div>
-              <div className="create-form-field">
-                <label>Category</label>
-                <input name="category" value={form.category} onChange={onChange} required placeholder="e.g. Grocery" />
+                <label>Product</label>
+                <select
+                  value={form.name && form.category ? `${form.name}${PRODUCT_VALUE_SEP}${form.category}` : ""}
+                  onChange={onProductSelect}
+                  required
+                  className="create-form-select"
+                >
+                  <option value="">Select product...</option>
+                  {products.map((p) => (
+                    <option key={p._id} value={`${p.name}${PRODUCT_VALUE_SEP}${p.category}`}>
+                      {p.name} ({p.category})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="create-form-field">
                 <label>Supplier</label>
-                <input name="supplier" value={form.supplier} onChange={onChange} placeholder="e.g. ABC Traders" />
+                <select
+                  name="supplier"
+                  value={form.supplier}
+                  onChange={onChange}
+                  className="create-form-select"
+                >
+                  <option value="">Select supplier...</option>
+                  {suppliers.map((s) => (
+                    <option key={s._id} value={s.name || ""}>
+                      {s.name}
+                      {s.location ? ` — ${s.location}` : ""}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="create-form-field">
                 <label>Price</label>
@@ -217,14 +284,31 @@ export default function Purchase() {
                 <tr key={p._id}>
                   <td>
                     {editingId === p._id ? (
-                      <input name="name" value={editForm.name} onChange={onEditChange} />
+                      <select
+                        value={editForm.name && editForm.category ? `${editForm.name}${PRODUCT_VALUE_SEP}${editForm.category}` : ""}
+                        onChange={onEditProductSelect}
+                        className="create-form-select"
+                        style={{ minWidth: "140px" }}
+                      >
+                        <option value="">Select product...</option>
+                        {products.map((prod) => (
+                          <option key={prod._id} value={`${prod.name}${PRODUCT_VALUE_SEP}${prod.category}`}>
+                            {prod.name} ({prod.category})
+                          </option>
+                        ))}
+                      </select>
                     ) : (
                       p.name
                     )}
                   </td>
                   <td>
                     {editingId === p._id ? (
-                      <input name="category" value={editForm.category} onChange={onEditChange} />
+                      <input
+                        name="category"
+                        value={editForm.category}
+                        readOnly
+                        style={{ width: "100%", backgroundColor: "#f5f5f5", cursor: "not-allowed" }}
+                      />
                     ) : (
                       p.category
                     )}
@@ -263,7 +347,21 @@ export default function Purchase() {
                   </td>
                   <td>
                     {editingId === p._id ? (
-                      <input name="supplier" value={editForm.supplier} onChange={onEditChange} />
+                      <select
+                        name="supplier"
+                        value={editForm.supplier}
+                        onChange={onEditChange}
+                        className="create-form-select"
+                        style={{ minWidth: "140px" }}
+                      >
+                        <option value="">Select supplier...</option>
+                        {suppliers.map((s) => (
+                          <option key={s._id} value={s.name || ""}>
+                            {s.name}
+                            {s.location ? ` — ${s.location}` : ""}
+                          </option>
+                        ))}
+                      </select>
                     ) : (
                       p.supplier
                     )}

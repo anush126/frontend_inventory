@@ -7,8 +7,8 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <Link 
-        to="/" 
-        className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
+        to="/dashboard" 
+        className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
       >
         Dashboard
       </Link>
