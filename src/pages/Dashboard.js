@@ -14,6 +14,8 @@ export default function Dashboard() {
     monthlyTransactions: 0,
     salesTrendData: []
   });
+  const [rawData, setRawData] = useState({ products: [], sales: [], todaySales: [] });
+  const [detailModal, setDetailModal] = useState({ show: false, type: null });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,13 +55,15 @@ export default function Dashboard() {
         const monthlyTransactions = thisMonthSales.length;
 
         // Calculate daily sales for today
-        const dailySales = sales
-          .filter(s => {
-            if (!s.date) return false;
-            const saleDate = normalizeDate(s.date);
-            return saleDate.getTime() === today.getTime();
-          })
-          .reduce((sum, s) => sum + (Number(s.price) || 0), 0);
+        const todaySalesList = sales.filter(s => {
+          if (!s.date) return false;
+          const saleDate = normalizeDate(s.date);
+          return saleDate.getTime() === today.getTime();
+        });
+        const dailySales = todaySalesList.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
+
+        // Store raw data for detail modals
+        setRawData({ products, sales, todaySales: todaySalesList });
 
         // By day of month: { day 1..31, amount }
         const amountByDay = Array.from({ length: 31 }, (_, i) => ({ day: i + 1, amount: 0 }));
@@ -115,31 +119,35 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards - Clickable */}
       <div className="kpi-cards">
-        <div className="kpi-card">
+        <div className="kpi-card kpi-card-clickable" onClick={() => setDetailModal({ show: true, type: 'totalProducts' })}>
           <div className="kpi-label">Total Products</div>
           <div className="kpi-value">
             {loading ? "[...]" : `[${stats.totalProducts}]`}
           </div>
+          <div className="kpi-hint">Click to view</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card kpi-card-clickable" onClick={() => setDetailModal({ show: true, type: 'lowStock' })}>
           <div className="kpi-label">Low Stock</div>
           <div className="kpi-value">
             {loading ? "[...]" : `[${stats.lowStock}]`}
           </div>
+          <div className="kpi-hint">Click to view</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card kpi-card-clickable" onClick={() => setDetailModal({ show: true, type: 'outOfStock' })}>
           <div className="kpi-label">Out of Stock</div>
           <div className="kpi-value">
             {loading ? "[...]" : `[${stats.outOfStock}]`}
           </div>
+          <div className="kpi-hint">Click to view</div>
         </div>
-        <div className="kpi-card">
+        <div className="kpi-card kpi-card-clickable" onClick={() => setDetailModal({ show: true, type: 'dailySales' })}>
           <div className="kpi-label">Daily Sales</div>
           <div className="kpi-value">
             {loading ? "[Rs....]" : `[Rs.${stats.dailySales.toFixed(2)}]`}
           </div>
+          <div className="kpi-hint">Click to view</div>
         </div>
       </div>
 
@@ -223,6 +231,112 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Detail Modal */}
+      {detailModal.show && (
+        <div className="dashboard-modal-overlay" onClick={() => setDetailModal({ show: false, type: null })}>
+          <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="dashboard-modal-header">
+              <h3>
+                {detailModal.type === 'totalProducts' && 'All Products'}
+                {detailModal.type === 'lowStock' && 'Low Stock Products'}
+                {detailModal.type === 'outOfStock' && 'Out of Stock Products'}
+                {detailModal.type === 'dailySales' && "Today's Sales"}
+              </h3>
+              <button className="dashboard-modal-close" onClick={() => setDetailModal({ show: false, type: null })}>×</button>
+            </div>
+            <div className="dashboard-modal-body">
+              {detailModal.type === 'totalProducts' && (
+                rawData.products.length === 0 ? (
+                  <p className="dashboard-modal-empty">No products found.</p>
+                ) : (
+                  <table className="dashboard-modal-table">
+                    <thead>
+                      <tr><th>Name</th><th>Category</th><th>Stock</th></tr>
+                    </thead>
+                    <tbody>
+                      {rawData.products.map(p => (
+                        <tr key={p._id}>
+                          <td>{p.name}</td>
+                          <td>{p.category}</td>
+                          <td style={{ color: p.stock === 0 ? '#f44336' : p.stock < 10 ? '#ff9800' : '#4caf50' }}>{p.stock}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )
+              )}
+              {detailModal.type === 'lowStock' && (
+                (() => {
+                  const lowStockProducts = rawData.products.filter(p => (Number(p.stock) || 0) > 0 && (Number(p.stock) || 0) < 10);
+                  return lowStockProducts.length === 0 ? (
+                    <p className="dashboard-modal-empty">No low stock products.</p>
+                  ) : (
+                    <table className="dashboard-modal-table">
+                      <thead>
+                        <tr><th>Name</th><th>Category</th><th>Stock</th></tr>
+                      </thead>
+                      <tbody>
+                        {lowStockProducts.map(p => (
+                          <tr key={p._id}>
+                            <td>{p.name}</td>
+                            <td>{p.category}</td>
+                            <td style={{ color: '#ff9800', fontWeight: '600' }}>{p.stock}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  );
+                })()
+              )}
+              {detailModal.type === 'outOfStock' && (
+                (() => {
+                  const outOfStockProducts = rawData.products.filter(p => !p.stock || Number(p.stock) <= 0);
+                  return outOfStockProducts.length === 0 ? (
+                    <p className="dashboard-modal-empty">No out of stock products.</p>
+                  ) : (
+                    <table className="dashboard-modal-table">
+                      <thead>
+                        <tr><th>Name</th><th>Category</th><th>Stock</th></tr>
+                      </thead>
+                      <tbody>
+                        {outOfStockProducts.map(p => (
+                          <tr key={p._id}>
+                            <td>{p.name}</td>
+                            <td>{p.category}</td>
+                            <td style={{ color: '#f44336', fontWeight: '600' }}>0</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  );
+                })()
+              )}
+              {detailModal.type === 'dailySales' && (
+                rawData.todaySales.length === 0 ? (
+                  <p className="dashboard-modal-empty">No sales recorded today.</p>
+                ) : (
+                  <table className="dashboard-modal-table">
+                    <thead>
+                      <tr><th>Customer</th><th>Product</th><th>Qty</th><th>Price</th></tr>
+                    </thead>
+                    <tbody>
+                      {rawData.todaySales.map(s => (
+                        <tr key={s._id}>
+                          <td>{s.customerName}</td>
+                          <td>{s.productName}</td>
+                          <td>{s.quantity || 1}</td>
+                          <td style={{ color: '#2196F3', fontWeight: '600' }}>₹{s.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

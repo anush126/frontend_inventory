@@ -9,8 +9,9 @@ export default function Products() {
   const [showCreate, setShowCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", category: "", stock: "" });
-   const [editingId, setEditingId] = useState(null);
-   const [editForm, setEditForm] = useState({ name: "", category: "", stock: "" });
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: "", category: "", stock: "" });
+  const [deleteModal, setDeleteModal] = useState({ show: false, product: null });
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -89,12 +90,41 @@ export default function Products() {
     }
   };
 
-  const onDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  const openDeleteModal = (product) => {
+    setDeleteModal({ show: true, product });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ show: false, product: null });
+  };
+
+  const onClearStock = async () => {
+    if (!deleteModal.product) return;
     setSaving(true);
     setError(null);
     try {
-      await api.delete(`/products/${id}`);
+      await api.put(`/products/${deleteModal.product._id}`, {
+        name: deleteModal.product.name,
+        category: deleteModal.product.category,
+        stock: 0
+      });
+      closeDeleteModal();
+      await fetchProducts();
+    } catch (err) {
+      console.error("Error clearing stock:", err);
+      setError(err?.response?.data?.error || "Failed to clear stock.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onDeleteProduct = async () => {
+    if (!deleteModal.product) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await api.delete(`/products/${deleteModal.product._id}`);
+      closeDeleteModal();
       await fetchProducts();
     } catch (err) {
       console.error("Error deleting product:", err);
@@ -121,15 +151,15 @@ export default function Products() {
             <div className="create-form-grid">
               <div className="create-form-field">
                 <label>Product Name</label>
-                <input name="name" value={form.name} onChange={onChange} required placeholder="e.g. Sugar" />
+                <input name="name" value={form.name} onChange={onChange} required />
               </div>
               <div className="create-form-field">
                 <label>Category</label>
-                <input name="category" value={form.category} onChange={onChange} required placeholder="e.g. Grocery" />
+                <input name="category" value={form.category} onChange={onChange} required />
               </div>
               <div className="create-form-field">
                 <label>Stock</label>
-                <input name="stock" value={form.stock} onChange={onChange} type="number" min="0" placeholder="e.g. 25" />
+                <input name="stock" value={form.stock} onChange={onChange} type="number" min="0" />
               </div>
             </div>
             <div className="create-form-actions">
@@ -240,7 +270,7 @@ export default function Products() {
                         </button>
                         <button
                           className="action-button"
-                          onClick={() => onDelete(p._id)}
+                          onClick={() => openDeleteModal(p)}
                           disabled={saving}
                           style={{ marginLeft: 8, backgroundColor: "#f44336" }}
                         >
@@ -255,6 +285,41 @@ export default function Products() {
           </table>
         )}
       </div>
+
+      {/* Delete Options Modal */}
+      {deleteModal.show && (
+        <div className="modal-overlay" onClick={closeDeleteModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title">Delete Options</h3>
+            <p className="modal-message">
+              What would you like to do with <strong>{deleteModal.product?.name}</strong>?
+            </p>
+            <div className="modal-actions">
+              <button
+                className="modal-button modal-button-warning"
+                onClick={onClearStock}
+                disabled={saving}
+              >
+                Clear All Stock
+              </button>
+              <button
+                className="modal-button modal-button-danger"
+                onClick={onDeleteProduct}
+                disabled={saving}
+              >
+                Delete Product
+              </button>
+              <button
+                className="modal-button modal-button-secondary"
+                onClick={closeDeleteModal}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

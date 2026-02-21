@@ -1,0 +1,65 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  position: relative;
+}
+
+.app-header-brand::after {
+  content: "Go to home";
+  position: absolute;
+  bottom: -28px;
+  left: 0;
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(4px);
+  z-index: 10;
+}
+
+.app-header-brand:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.app-header-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.app-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-header-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.app-header-tagline {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.app-header-brand:hover .app-header-name {
+  color: #2196F3;
+}

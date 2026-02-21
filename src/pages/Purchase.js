@@ -235,11 +235,11 @@ export default function Purchase() {
               </div>
               <div className="create-form-field">
                 <label>Price</label>
-                <input name="price" value={form.price} onChange={onChange} type="number" min="0" step="0.01" placeholder="e.g. 150" />
+                <input name="price" value={form.price} onChange={onChange} type="number" min="0" step="0.01" />
               </div>
               <div className="create-form-field">
                 <label>Stock (Qty)</label>
-                <input name="stock" value={form.stock} onChange={onChange} type="number" min="0" placeholder="e.g. 10" />
+                <input name="stock" value={form.stock} onChange={onChange} type="number" min="0" />
               </div>
             </div>
             <div className="create-form-actions">

@@ -1,0 +1,60 @@
+.app-footer {
+  background-color: #333;
+  color: #fff;
+  padding: 32px 24px 20px;
+  margin-top: auto;
+}
+
+.app-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 28px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #555;
+}
+
+.app-footer-section h4 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.app-footer-section p,
+.app-footer-section ul {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.app-footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.app-footer-section ul li {
+  margin-bottom: 6px;
+}
+
+.app-footer-section ul a {
+  color: #aaa;
+  text-decoration: none;
+}
+
+.app-footer-section ul a:hover {
+  color: #2196F3;
+}
+
+.app-footer-copyright {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #888;
+  text-align: center;
+}

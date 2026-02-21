@@ -139,23 +139,23 @@ export default function Supplier() {
             <div className="create-form-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
               <div className="create-form-field">
                 <label>Name</label>
-                <input name="name" value={form.name} onChange={onChange} required placeholder="e.g. ABC Traders" />
+                <input name="name" value={form.name} onChange={onChange} required />
               </div>
               <div className="create-form-field">
                 <label>Phone</label>
-                <input name="phone" value={form.phone} onChange={onChange} placeholder="e.g. 9876543210" />
+                <input name="phone" value={form.phone} onChange={onChange} />
               </div>
               <div className="create-form-field">
                 <label>Email</label>
-                <input name="email" value={form.email} onChange={onChange} type="email" placeholder="e.g. abc@email.com" />
+                <input name="email" value={form.email} onChange={onChange} type="email" />
               </div>
               <div className="create-form-field">
                 <label>Location</label>
-                <input name="location" value={form.location} onChange={onChange} placeholder="e.g. Pune" />
+                <input name="location" value={form.location} onChange={onChange} />
               </div>
               <div className="create-form-field" style={{ gridColumn: "span 2" }}>
                 <label>Description</label>
-                <input name="description" value={form.description} onChange={onChange} placeholder="Optional note" />
+                <input name="description" value={form.description} onChange={onChange} />
               </div>
             </div>
             <div className="create-form-actions">

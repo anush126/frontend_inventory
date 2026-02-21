@@ -201,7 +201,7 @@ export default function Sales() {
             <div className="create-form-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
               <div className="create-form-field">
                 <label>Customer Name</label>
-                <input name="customerName" value={form.customerName} onChange={onChange} required placeholder="e.g. Rahul" />
+                <input name="customerName" value={form.customerName} onChange={onChange} required />
               </div>
               <div className="create-form-field">
                 <label>Product</label>
@@ -221,11 +221,11 @@ export default function Sales() {
               </div>
               <div className="create-form-field">
                 <label>Quantity</label>
-                <input name="quantity" value={form.quantity} onChange={onChange} type="number" min="1" placeholder="e.g. 1" />
+                <input name="quantity" value={form.quantity} onChange={onChange} type="number" min="1" />
               </div>
               <div className="create-form-field">
                 <label>Price</label>
-                <input name="price" value={form.price} onChange={onChange} type="number" min="0" step="0.01" placeholder="e.g. 200" />
+                <input name="price" value={form.price} onChange={onChange} type="number" min="0" step="0.01" />
               </div>
               <div className="create-form-field">
                 <label>Date of Sale</label>
